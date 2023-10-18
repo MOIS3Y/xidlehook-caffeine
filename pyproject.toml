@@ -1,0 +1,29 @@
+[tool.poetry]
+name = "xidlehook-caffeine"
+version = "0.1.0"
+description = "Script to suspend the xidlehook process and then start it again"
+authors = ["MOIS3Y <stepan@zhukovsky.me>"]
+license = "GPL-3.0-or-later"
+repository = "https://github.com/MOIS3Y/xidlehook-caffeine"
+keywords = ["xidlehook", "caffeine", "lockscreen"]
+include = ["CHANGELOG.md"]
+readme = "README.md"
+packages = [{include = "xidlehook_caffeine"}]
+
+
+[tool.poetry.dependencies]
+python = "^3.10"
+psutil = "^5.9.6"
+
+
+[tool.poetry.group.dev.dependencies]
+flake8 = "^6.1.0"
+
+
+[tool.poetry.scripts]
+xidlehook-caffeine = "xidlehook_caffeine.main:main"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
