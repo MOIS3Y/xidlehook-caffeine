@@ -15,30 +15,18 @@ Qtile WM widget panel.
 It's called "caffeine" after the popular widget gnome-shell
 
 Dependencies:
--- -- -- -- 
+-- -- -- --
 - psutil
 - xidlehook
 - dunst
 - NerdFonts for icons
 """
 
-
-# █▀▄▀█ █▀▀ ▀█▀ ▄▀█ ▀
-# █░▀░█ ██▄ ░█░ █▀█ ▄
-# -------------------
-__author__ = "MOIS3Y"
-__credits__ = ["Stepan Zhukovsky"]
-__license__ = "GPL v3.0"
-__version__ = "0.1.0"
-__maintainer__ = "Stepan Zhukovsky"
-__email__ = "stepan@zhukovsky.me"
-__status__ = "Production"
-
-
 import sys
 import argparse
 import subprocess
 import psutil
+from . import __version__
 
 
 def find_process(name):
@@ -124,7 +112,7 @@ def main():
     if args.version:
         print(__version__)
         sys.exit(0)
-        
+
     # -- -- -- -- caffeine -- -- -- --
     print(caffeine('xidlehook', args.toggle, args.notify), end='')
 
