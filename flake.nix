@@ -1,56 +1,61 @@
 {
-  description = "Script to suspend the xidlehook process and then start it again";
+  description = ''
+    xidlehook-caffeine - a script to pause and unpause xidlehook processes
+  '';
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
-    poetry2nix = {
-      url = "github:nix-community/poetry2nix";
-      inputs.nixpkgs.follows = "nixpkgs";
+    systems.url = "github:nix-systems/default-linux";
+    flake-utils = {
+      url = "github:numtide/flake-utils";
+      inputs.systems.follows = "systems";
     };
   };
 
-  outputs = { self, nixpkgs, poetry2nix, ... }:
-    let
-      system = "x86_64-linux";
-      pkgs = nixpkgs.legacyPackages.${system};
-      inherit (poetry2nix.lib.mkPoetry2Nix { inherit pkgs; }) mkPoetryApplication;
-      inherit (poetry2nix.lib.mkPoetry2Nix { inherit pkgs; }) mkPoetryEnv;
-    in {
+  outputs = { self, nixpkgs, flake-utils, ... }:
+    flake-utils.lib.eachDefaultSystem (system:
+      let
+        pkgs = import nixpkgs { inherit system; };
+        python = pkgs.python3;
+        pythonPackages = python.pkgs;
+      in {
+      packages = rec {
+        xidlehook-caffeine = pythonPackages.buildPythonApplication {
+          pname = "xidlehook-caffeine";
+          version = "0.1.0";
+          format = "pyproject";
+          src = self;
 
-    # Executed by `nix build .#<name>
-    # ? Example: nix build .#xidlehook-caffeine 
-    packages.${system} = {
-      xidlehook-caffeine = with pkgs; mkPoetryApplication { 
-        projectDir = self; 
-        preferWheels = true;
-        propagatedBuildInputs = [
-          libnotify
-          dunst
-        ];
+          nativeBuildInputs = [
+            pythonPackages.poetry-core
+          ];
+          dependencies = [
+            pythonPackages.psutil
+            pkgs.dunst
+            pkgs.libnotify
+          ];
+        };
+        default = xidlehook-caffeine;
       };
-      default = self.packages.${system}.xidlehook-caffeine;
-    };
+      apps = rec {
+        xidlehook-caffeine = flake-utils.lib.mkApp {
+          drv = self.packages.${system}.xidlehook-caffeine;
+        };
+        default = xidlehook-caffeine;
+      };
 
-    # Executed by `nix run . -- <args?>`
-    # ? example: nix run .#xidlehook-caffeine -- --version
-    apps.${system}.xidlehook-caffeine = {
-      type = "app";
-      program = "${self.packages.${system}.xidlehook-caffeine}/bin/xidlehook-caffeine";
-    };
+      devShells.default = pkgs.mkShell {
+        buildInputs = [
+          python
+          pkgs.poetry
+          pythonPackages.psutil
+          pythonPackages.flake8
+        ];
 
-    devShells.${system}.xidlehook-caffeine = pkgs.mkShellNoCC {
-      shellHook = ''
-        echo
-        echo "▀▄▀ █ █▀▄ █░░ █▀▀ █░█ █▀█ █▀█ █▄▀ ▄▄ █▀▀ ▄▀█ █▀▀ █▀▀ █▀▀ █ █▄░█ █▀▀ ▀"
-        echo "█░█ █ █▄▀ █▄▄ ██▄ █▀█ █▄█ █▄█ █░█ ░░ █▄▄ █▀█ █▀░ █▀░ ██▄ █ █░▀█ ██▄ ▄"
-        echo "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "
-        echo
-      '';
-      packages = with pkgs; [
-        (mkPoetryEnv { projectDir = self; preferWheels = true; })
-        libnotify
-        dunst
-      ];
-    };
-  };
+        shellHook = ''
+          poetry env use ${python}/bin/python
+          poetry install
+        '';
+      };
+  });
 }

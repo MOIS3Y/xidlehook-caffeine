@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "xidlehook-caffeine"
 version = "0.1.0"
-description = "Script to suspend the xidlehook process and then start it again"
+description = "A script to pause and unpause xidlehook processes"
 authors = ["MOIS3Y <stepan@zhukovsky.me>"]
 license = "GPL-3.0-or-later"
 repository = "https://github.com/MOIS3Y/xidlehook-caffeine"
@@ -13,7 +13,7 @@ packages = [{include = "xidlehook_caffeine"}]
 
 [tool.poetry.dependencies]
 python = "^3.10"
-psutil = "^5.9.6"
+psutil = "^7.0.0"
 
 
 [tool.poetry.group.dev.dependencies]
